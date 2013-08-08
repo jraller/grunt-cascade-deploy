@@ -18,12 +18,12 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/jraller/grunt-cascade/blob/master/LICENSE-MIT"
+      "url": "https://github.com/jraller/grunt-cascade-deploy/blob/master/LICENSE-MIT"
     }
   ],
   "main": "Gruntfile.js",
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 0.10.0"
   },
   "scripts": {
     "test": "grunt test"

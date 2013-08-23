@@ -37,15 +37,16 @@ module.exports = function (grunt) {
 		cascadeDeploy: {
 			'default': {
 				options: {
-					site: 'SOAP',
-					url: 'https://cascade.your.edu', // will append /ws/services/AssetOperationService?wsdl automatically
+					site: 'Jason',
+					url: 'http://conference.cascadeserver.com', // will append /ws/services/AssetOperationService?wsdl automatically
 				},
 				files: [
-					{src: ['Base Folder/css/*.css'], dest: '/css/', type: 'file'},
-					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Test', dest: 'js/', type: 'file'},
-					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Two', dest: 'js/', type: 'file'},
+					{src: ['Base Folder/css/*.css'], dest: '/css', type: 'file'},
+//					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Test', dest: 'js/', type: 'file'},
+//					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Two', dest: 'js/', type: 'file'},
 					{src: ['Base Folder/files/*'], dest: 'files/', type: 'file'},
-					{src: ['Base Folder/images/*'], dest: 'images/', type: 'file'},
+					{src: ['Base Folder/files/*'], dest: '/files/deep/folder copy/backup', type: 'file'},
+//					{src: ['Base Folder/images/*'], dest: 'images/', type: 'file'},
 				],
 			},
 		},
@@ -110,6 +111,6 @@ module.exports = function (grunt) {
 	// By default, lint and run all tests.
 	grunt.registerTask('default', ['jshint', 'test']);
 	
-	grunt.registerTask('fred', ['prompt:cascadeAuthentication', 'cascadeDeploy']);
+	grunt.registerTask('deploy', ['prompt:cascadeAuthentication', 'cascadeDeploy']);
 
 };

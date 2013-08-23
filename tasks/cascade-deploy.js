@@ -94,29 +94,6 @@ module.exports = function (grunt) {
 		}
 	}
 
-/*
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:as="http://www.hannonhill.com/ws/ns/AssetOperationService">
-    <SOAP-ENV:Header/>
-    <SOAP-ENV:Body>
-        <as:create>
-            <as:authentication>
-                <as:password>jraller</as:password>
-                <as:username>jraller</as:username>
-            </as:authentication>
-            <as:asset>
-                <as:file>
-					<as:name>Fred</as:name>
-					<as:parentFolderPath>Julie/Jones</as:parentFolderPath>
-					<as:siteName>Jason</as:siteName>
-					<as:text>Fred</as:text>
-                </as:file>
-            </as:asset>
-        </as:create>
-    </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
-*/
-
-
 	/*
 	starting with the root folder read and create folders as needed until full path is built and then create the asset;
 	*/
@@ -223,13 +200,6 @@ module.exports = function (grunt) {
 
 					server = new Buffer(response.readReturn.asset.file.data, 'base64');
 					local = fs.readFileSync(asset.path);
-
-//					console.log('Local:');
-//					console.log(local.toString('utf8')); //.toString('utf8')
-//					console.log('Server:');
-//					console.log(server.toString('utf8'));
-
-//					console.log('locLen:', local.length, 'ServLen:', server.length);
 
 					if (local.length !== server.length || local.toString('utf8') !== server.toString('utf8')) {
 						// edit copy

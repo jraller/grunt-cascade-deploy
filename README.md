@@ -38,5 +38,19 @@ grunt.initConfig({
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
+## Roadmap
+
+Initial release with:
+* deploy files (.js, .css, images, documents)
+* create supporting folder path
+* for existing files compare local to server and only edit if needed.
+
+Future releases:
+* deploy additional asset types template, page, configuration set, content type, formats
+
+Not planned for this tool:
+* Site setup tool - perhaps as a separate tool
+* data definition migrations - between versions of a DD, page with DD to Structured Data Block, etc
+
 ## Release History
 _(Nothing yet)_

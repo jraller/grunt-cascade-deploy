@@ -24,14 +24,21 @@ In your project's Gruntfile, add a section named `cascadeDeploy` to the data obj
 
 ```js
 grunt.initConfig({
-  cascadeDeploy: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
-  },
+  cascadeDeploy: { // this identifies the cascadeDeploy section
+    'default': { // a callable deployment configuration, you can have more than one
+      options: {
+        url: '', // required http(s)://cascade.yourdomain.edu
+        site: '' // optional, a default setting for site that can be overridden by the files section
+      },
+      files: [
+        {src: [], site: '', dest: '', type: 'file'},
+        //src globable name pattern for local files
+        //site only needed if overriding options.site
+        //dest -- a cascade folder path eg '/_internal'
+        //type -- for now always file
+      ]
+    }
+  }
 })
 ```
 
@@ -54,3 +61,4 @@ Not planned for this tool:
 
 ## Release History
 _(Nothing yet)_
+Official release planned for Sept 17th

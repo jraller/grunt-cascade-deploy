@@ -41,33 +41,14 @@ module.exports = function (grunt) {
 					url: 'http://conference.cascadeserver.com', // will append /ws/services/AssetOperationService?wsdl automatically
 				},
 				files: [
-					{src: ['Base Folder/css/*.css'], dest: '/css', type: 'file'},
-//					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Test', dest: 'js/', type: 'file'},
+					{src: ['css/*.css'], dest: '/css', type: 'file'},
+					{src: ['js/**/*.js', '!**/no-deploy.js'], dest: 'js/', type: 'file'},
 //					{src: ['Base Folder/js/**/*.js', '!**/no-deploy.js'], site: 'SOAP-Two', dest: 'js/', type: 'file'},
-					{src: ['Base Folder/files/*'], dest: 'files/', type: 'file'},
-					{src: ['Base Folder/files/*'], dest: '/files/deep/folder copy/backup', type: 'file'},
+//					{src: ['Base Folder/files/*'], dest: 'files/', type: 'file'},
+//					{src: ['Base Folder/files/*'], dest: '/files/deep/folder copy/backup', type: 'file'},
 //					{src: ['Base Folder/images/*'], dest: 'images/', type: 'file'},
 				],
 			},
-		},
-
-		prompt: {
-			cascadeAuthentication: {
-				options: {
-					questions: [
-						{
-							config: 'cascadeDeploy.default.options.authentication.username',
-							type: 'input',
-							message: 'Username: ',
-						},
-						{
-							config: 'cascadeDeploy.default.options.authentication.password',
-							type: 'password',
-							message: 'Password:',
-						},
-					]
-				}
-			}
 		},
 
 		yuidoc: {
@@ -102,15 +83,13 @@ module.exports = function (grunt) {
 	// http://yui.github.io/yuidoc/syntax/index.html
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-	grunt.loadNpmTasks('grunt-prompt');
-
 	// Whenever the "test" task is run, first clean the "tmp" dir, then run this
 	// plugin's task(s), then test the result.
 	grunt.registerTask('test', ['clean', 'cascadeDeploy', 'nodeunit']);
 
 	// By default, lint and run all tests.
 	grunt.registerTask('default', ['jshint', 'test']);
-	
-	grunt.registerTask('deploy', ['prompt:cascadeAuthentication', 'cascadeDeploy']);
+
+	grunt.registerTask('deploy', ['cascadeDeploy']);
 
 };

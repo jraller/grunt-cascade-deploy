@@ -11,14 +11,12 @@
 'use strict';
 
 module.exports = function (grunt) {
-
-	// Please see the Grunt documentation for more information regarding task
-	// creation: http://gruntjs.com/creating-tasks
-
 	var nextList = [],
-		soap = require('soap-cascade'), // https://npmjs.org/package/soap-js - apply patch - https://github.com/milewise/node-soap/issues/143
+		done,
+		soap = require('soap-cascade'),
 		fs = require('fs'),
 		path = require('path'),
+		inquirer = require('inquirer'),
 		client = {},
 		soapArgs = {
 			authentication: {
@@ -27,27 +25,39 @@ module.exports = function (grunt) {
 			},
 			identifier: {
 				path: {
-					path: '/index',
-					siteName: 'Jason'
+					path: '',
+					siteName: ''
 				},
 				type: 'file',
 				recycled: 'false'
 			}
-		};
-
+		},
+		questions = [
+			{
+				type: 'input',
+				name: 'username',
+				message: 'Username: ',
+				'default': 'yourUsernameHereIfYouWant'
+			},
+			{
+				type: 'password',
+				name: 'password',
+				message: 'Password: '
+			}
+		];
 
 	function enstack() {
 		var todo;
-		if (arguments.length > 0) { // if we were called with something to add to the list
-			if (!Array.isArray(arguments['0'])) { // if it was not an array make it into one
+		if (arguments.length > 0) {
+			if (!Array.isArray(arguments['0'])) {
 				todo = [arguments];
-			} else { // break out the array
+			} else {
 				todo = [];
 				arguments['0'].forEach(function (item) {
 					todo.push(item);
 				});
 			}
-			nextList = todo.concat(nextList); // add the items to the front of the array and Wes suggests unshifting these onto the existing array as being faster
+			nextList = todo.concat(nextList);
 		}
 	}
 
@@ -56,18 +66,18 @@ module.exports = function (grunt) {
 			current,
 			task,
 			args = {};
-		if (arguments.length > 0) { // if we were called with something to add to the list
-			if (!Array.isArray(arguments['0'])) { // if it was not an array make it into one
+		if (arguments.length > 0) {
+			if (!Array.isArray(arguments['0'])) {
 				todo = [arguments];
-			} else { // break out the array
+			} else {
 				todo = [];
 				arguments['0'].forEach(function (item) {
 					todo.push(item);
 				});
 			}
-			nextList = todo.concat(nextList); // add the items to the front of the array and Wes suggests unshifting these onto the existing array as being faster
+			nextList = todo.concat(nextList);
 		}
-		if (nextList.length > 0) { // if there are things to process
+		if (nextList.length > 0) {
 			current = Array.prototype.slice.apply(nextList.shift());
 			task = current[0];
 			args = current.slice(1);
@@ -75,30 +85,32 @@ module.exports = function (grunt) {
 		}
 	}
 
+	function die() {
+		nextList = [];
+	}
+
 	function report(message) {
 		if (typeof message === 'string') {
-			console.log(message);
+			grunt.log.writeln(message);
 		} else {
-			console.dir(message);
+			grunt.log.writeFlags(message);
 		}
 		next();
 	}
 
-	function handleError(err) {
-		if (err.code === 'ECONNRESET') {
-			report('SAW ECONNRESET');
-	//		next(report, 'SAW ECONNRESET');
-	//		next(); // should be fixed in nodejs v0.11+
-		} else {
-			next(report, err);
+	function handleError(err, caller) {
+		die();
+		if (!caller) {
+			caller = 'A function';
 		}
+		next([
+			[report, caller + ' responded with: ' + err.message],
+			[done]
+		]);
 	}
 
-	/*
-	starting with the root folder read and create folders as needed until full path is built and then create the asset;
-	*/
 	function createAsset(asset) {
-		console.log('create Asset: ' + asset.path);
+		grunt.log.writeln('create Asset: ' + asset.path);
 
 		var createArgs = {},
 			local,
@@ -118,15 +130,15 @@ module.exports = function (grunt) {
 			local = fs.readFileSync(asset.path, {encoding: 'base64'});
 			createArgs.asset[asset.type].data = local;
 		}
-
+		// later handle types other than file
 		client.create(createArgs, function (err, response) {
 			if (err) {
-				next(handleError, err);
+				next(handleError, err, 'create');
 			} else {
 				if (response.createReturn.success.toString() === 'true') {
 					next();
 				} else {
-					console.log(response.createReturn.message);
+					grunt.log.writeln(response.createReturn.message);
 					next(report, 'failed to create ' + asset.path);
 				}
 			}
@@ -137,8 +149,6 @@ module.exports = function (grunt) {
 		if (path.slice(0, 1) !== '/') {
 			path = '/' + path;
 		}
-//		console.log('check folder: ' + path);
-
 		var readArgs = soapArgs,
 			parent;
 		readArgs.identifier.path.path = path;
@@ -147,25 +157,22 @@ module.exports = function (grunt) {
 
 		client.read(soapArgs, function (err, response) {
 			if (err) {
-				next(handleError, err);
+				next(handleError, err, 'read folder');
 			} else {
-				if (response.readReturn.success.toString() === 'true') {
-					// we've found a good folder
+				if (response.readReturn.success.toString() === 'true') { // we've found a good folder
 					next();
 				} else {
-//					console.log('enstack the creation of ' + path);
 					parent = path.substring(0, path.lastIndexOf('/'));
-
 					enstack(createAsset, {
 						'path': path.substring(path.lastIndexOf('/')),
 						'site': site,
 						'dest': parent,
 						'type': 'folder'
 					});
-					if (path.indexOf('/') !== -1) { // only checking for / here in path
+					if (path.indexOf('/') !== -1) {
 						checkFolder(parent, site);
 					} else {
-						console.log('we ran out of path to check?');
+						grunt.log.writeln('we ran out of path to check?');
 						next();
 					}
 				}
@@ -180,30 +187,21 @@ module.exports = function (grunt) {
 			missingMessage = '',
 			assetName = path.basename(asset.path);
 
-		if (asset.dest.slice(-1) === '\\' || asset.dest.slice(-1) === '/') { // should this be only / ?
+		if (asset.dest.slice(-1) === '/') {
 			asset.dest = asset.dest.substr(0, asset.dest.length - 1);
 		}
 
-		soapArgs.identifier.path.path = path.join(asset.dest, assetName).replace(/\\/g, '/');
+		soapArgs.identifier.path.path = path.join(asset.dest, assetName).replace(/\\/g, '/'); // shouldn't need this replace
 		soapArgs.identifier.path.siteName = asset.site;
 		soapArgs.identifier.type = asset.type;
-
-//		console.log('processing: ' + soapArgs.identifier.path.path);
-
 		client.read(soapArgs, function (err, response) {
 			if (err) {
-				next(handleError, err);
+				next(handleError, err, 'read');
 			} else {
 				if (response.readReturn.success.toString() === 'true') {
-
-					// now read
-
 					server = new Buffer(response.readReturn.asset.file.data, 'base64');
 					local = fs.readFileSync(asset.path);
-
 					if (local.length !== server.length || local.toString('utf8') !== server.toString('utf8')) {
-						// edit copy
-
 						editArgs = {};
 						editArgs.authentication = soapArgs.authentication;
 						editArgs.asset = {};
@@ -213,14 +211,10 @@ module.exports = function (grunt) {
 						editArgs.asset[asset.type].parentFolderPath = asset.dest;
 						editArgs.asset[asset.type].siteName = asset.site;
 						editArgs.asset[asset.type].data = local.toString('base64');
-
-//						console.dir(editArgs);
-
 						client.edit(editArgs, function (err, response) {
 							if (err) {
-								next(handleError, err);
+								next(handleError, err, 'edit');
 							} else {
-								// did we get a success return?
 								if (response.editReturn.success.toString() === 'true') {
 									next(report, soapArgs.identifier.path.path + ' was edited');
 								} else {
@@ -228,24 +222,17 @@ module.exports = function (grunt) {
 								}
 							}
 						});
-//						next(report, asset.path + ' needs to be uploaded');
 					} else {
-						// was already there
 						next(report, soapArgs.identifier.path.path + ' had no changes');
 					}
-
-//					next(report, response.readReturn.asset.file);
 				} else {
 					missingMessage = 'Unable to identify an entity based on provided entity path \'' + soapArgs.identifier.path.path + '\' and type \'' + soapArgs.identifier.type + '\'';
 					if (response.readReturn.message === missingMessage) {
 						// check folder path and then create copy
-
 						next([
 							[checkFolder, asset.dest, asset.site],
 							[createAsset, asset]
 						]);
-
-//						next(report, 'server didn\'t have a copy of ' + soapArgs.identifier.path.path);
 					} else {
 						next(report, response.readReturn.message);
 					}
@@ -254,23 +241,37 @@ module.exports = function (grunt) {
 		});
 	}
 
+	function createClient() {
+		var url = grunt.config('cascadeDeploy.default.options.url'),
+			ws = '/ws/services/AssetOperationService?wsdl';
+		soap.createClient(url + ws, function (err, clientObj) {
+			if (err) {
+				handleError(err, 'createClient');
+			} else {
+				grunt.log.writeln('Client created');
+				client = clientObj;
+				next();
+			}
+		});
+	}
+
+	function bugUser() {
+		inquirer.prompt(questions, function (answers) {
+			soapArgs.authentication.username = answers.username;
+			soapArgs.authentication.password = answers.password;
+			next();
+		});
+	}
+
 	grunt.registerMultiTask('cascadeDeploy', 'Deploy assets to Casacde Server.', function () {
-	// Merge task-specific and/or target-specific options with these defaults.
+		// Merge task-specific and/or target-specific options with these defaults.
 		var done = this.async(),
 			url = grunt.config('cascadeDeploy.default.options.url'),
 			wsPath = '/ws/services/AssetOperationService?wsdl',
 			tasks = [];
-
-		grunt.config.requires('cascadeDeploy');
-
-		// require prompt:cascadeAuthentication to have been run
-		grunt.task.requires('prompt:cascadeAuthentication');
-
-		soapArgs.authentication.username = grunt.config('cascadeDeploy.default.options.authentication.username');
-		soapArgs.authentication.password = grunt.config('cascadeDeploy.default.options.authentication.password');
-
+		tasks.push([bugUser]); // prompt user
+		tasks.push([createClient]); // create client
 		this.files.forEach(function (f) {
-
 			// process specified files.
 			f.src.filter(function (filepath) {
 				// Warn on and remove invalid source files (if nonull was set).
@@ -296,19 +297,8 @@ module.exports = function (grunt) {
 				);
 			});
 		});
-
-
-		soap.createClient(url + wsPath, function (err, newClient) {
-			if (err) {
-				next(handleError, err);
-			} else {
-				client = newClient;
-//				tasks.push(uploadReport);
-				tasks.push([report, 'end of process with report']);
-				tasks.push([done]);
-//				console.dir(tasks);
-				next(tasks);
-			}
-		});
+//		tasks.push(uploadReport);
+		tasks.push([done]);
+		next(tasks); // begin executing the task queue
 	});
 };

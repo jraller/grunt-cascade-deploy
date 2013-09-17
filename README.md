@@ -60,5 +60,5 @@ Not planned for this tool:
 * data definition migrations - between versions of a DD, page with DD to Structured Data Block, etc
 
 ## Release History
-_(Nothing yet)_
-Official release planned for Sept 17th
+
+* 2013-09-17 version 0.2.0 launched at Cascade Server Users Conference #csuc13

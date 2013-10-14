@@ -34,7 +34,7 @@
     "grunt-contrib-nodeunit": "~0.1.2",
     "grunt": "~0.4.1",
     "grunt-contrib-yuidoc": "~0.4.0",
-    "soap-cascade": "~0.0.4"
+    "soap-cascade": ">= 0.1.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"

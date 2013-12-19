@@ -43,7 +43,7 @@
     "gruntplugin"
   ],
   "dependencies": {
-    "soap-cascade": "~0.0.4",
+    "soap-cascade": ">0.1.0",
     "inquirer": "~0.3.3"
   }
 }

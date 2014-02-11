@@ -1,0 +1,120 @@
+html {}
+
+body {
+	background: #2f4c6a;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	margin: 0;
+	min-width: 740px;
+	padding: 0;
+	width: 100%;
+}
+
+a {
+	color: #369;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #fff;
+	background: #369;
+	text-decoration: none;
+	}
+
+img {
+	border: 0;
+	padding: 0;
+}
+
+h1 {
+	color: #2F4C6A;
+	font-size: 11px;
+}
+
+h2 {
+	color: black;
+	font-size: 15px;
+}
+
+h3 {
+	color: #2F4C6A;
+	font-size: 11px;
+}
+
+#page_inner {
+	width: 700px;
+	margin: 0 auto;
+}
+
+#header {
+	width: 100%;
+}
+
+#content {
+	background-color: #F3E9CC;
+	border-top-left-radius: 30px;
+	-moz-border-radius-topleft: 30px;
+	-webkit-border-top-left-radius: 30px;
+	border-top-right-radius: 30px;
+	-moz-border-radius-topright: 30px;
+	-webkit-border-top-right-radius: 30px;
+}
+
+#list {
+	background-color: white;
+	border-top-left-radius: 30px;
+	float: left;
+	-moz-border-radius-topleft: 30px;
+	width: 350px;
+	-webkit-border-top-left-radius: 30px;
+}
+
+#groupList {
+}
+
+#list h2, #list h3, #list p {
+	padding: 0 20px;
+}
+
+#list h3 {
+	margin: 0;
+	padding: 0 20px;
+}
+
+.group {
+	padding: 3px 0px;
+}
+
+.inactive h3 {
+	color: #999999;
+}
+
+.inactive {
+	background-color: #CCCCCC;
+}
+
+.groupSelected {
+	background-color: #F3E9CC;
+}
+
+#detail {
+	background-color: #F3E9CC;
+	border-top-right-radius: 30px;
+	float: right;
+	-moz-border-radius-topright: 30px;
+	padding: 20px;
+	width: 310px;
+	-webkit-border-top-right-radius: 30px;
+}
+
+#scrollbox {
+	position: fixed;
+	width: 310px;
+}
+
+#push {
+	clear: both;
+}
+
+#footer {
+}

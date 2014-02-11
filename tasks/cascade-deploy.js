@@ -241,10 +241,8 @@ module.exports = function (grunt) {
 		});
 	}
 
-	function createClient() {
-		var url = grunt.config('cascadeDeploy.default.options.url'),
-			ws = '/ws/services/AssetOperationService?wsdl';
-		soap.createClient(url + ws, function (err, clientObj) {
+	function createClient(url) {
+		soap.createClient(url, function (err, clientObj) {
 			if (err) {
 				handleError(err, 'createClient');
 			} else {
@@ -266,11 +264,12 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('cascadeDeploy', 'Deploy assets to Casacde Server.', function () {
 		// Merge task-specific and/or target-specific options with these defaults.
 		var done = this.async(),
-			url = grunt.config('cascadeDeploy.default.options.url'),
+			taskName = this.target,
+			url = grunt.config('cascadeDeploy.' + taskName + '.options.url'),
 			wsPath = '/ws/services/AssetOperationService?wsdl',
 			tasks = [];
 		tasks.push([bugUser]); // prompt user
-		tasks.push([createClient]); // create client
+		tasks.push([createClient, url + wsPath]); // create client
 		this.files.forEach(function (f) {
 			// process specified files.
 			f.src.filter(function (filepath) {
@@ -289,7 +288,7 @@ module.exports = function (grunt) {
 						handleAsset,
 						{
 							'path': filepath,
-							'site': f.site || grunt.config('cascadeDeploy.default.options.site'),
+							'site': f.site || grunt.config('cascadeDeploy.' + taskName + '.options.site'),
 							'dest': f.dest,
 							'type': f.type
 						}

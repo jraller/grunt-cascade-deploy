@@ -93,7 +93,7 @@ module.exports = function (grunt) {
 		if (typeof message === 'string') {
 			grunt.log.writeln(message);
 		} else {
-			grunt.log.writeFlags(message);
+			grunt.log.writeflags(message);
 		}
 		next();
 	}
@@ -185,7 +185,9 @@ module.exports = function (grunt) {
 			local,
 			editArgs,
 			missingMessage = '',
-			assetName = path.basename(asset.path);
+			assetName = path.basename(asset.path),
+			rewriteLinks = 'false',
+			maintainAbsoluteLinks = 'false';
 
 		if (asset.dest.slice(-1) === '/') {
 			asset.dest = asset.dest.substr(0, asset.dest.length - 1);
@@ -194,6 +196,13 @@ module.exports = function (grunt) {
 		soapArgs.identifier.path.path = path.join(asset.dest, assetName).replace(/\\/g, '/'); // shouldn't need this replace
 		soapArgs.identifier.path.siteName = asset.site;
 		soapArgs.identifier.type = asset.type;
+
+		if (asset.rewriteLinks) {
+			rewriteLinks = (asset.rewriteLinks) ? 'true' : 'false';
+		}
+		if (asset.maintainAbsoluteLinks) {
+			maintainAbsoluteLinks = (asset.maintainAbsoluteLinks) ? 'true' : 'false';
+		}
 		client.read(soapArgs, function (err, response) {
 			if (err) {
 				next(handleError, err, 'read');
@@ -211,6 +220,10 @@ module.exports = function (grunt) {
 						editArgs.asset[asset.type].parentFolderPath = asset.dest;
 						editArgs.asset[asset.type].siteName = asset.site;
 						editArgs.asset[asset.type].data = local.toString('base64');
+						if (asset.type === 'file') {
+							editArgs.asset[asset.type].rewriteLinks = rewriteLinks;
+							editArgs.asset[asset.type].maintainAbsoluteLinks = maintainAbsoluteLinks;
+						}
 						client.edit(editArgs, function (err, response) {
 							if (err) {
 								next(handleError, err, 'edit');
@@ -290,7 +303,9 @@ module.exports = function (grunt) {
 							'path': filepath,
 							'site': f.site || grunt.config('cascadeDeploy.' + taskName + '.options.site'),
 							'dest': f.dest,
-							'type': f.type
+							'type': f.type,
+							'rewriteLinks': f.rewriteLinks,
+							'maintainAbsoluteLinks': f.maintainAbsoluteLinks
 						}
 					]
 				);

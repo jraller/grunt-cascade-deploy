@@ -32,6 +32,7 @@ grunt.initConfig({
       },
       files: [
         {src: [], site: '', dest: '', type: 'file'},
+        {src: [], site: '', dest: '', type: 'file', rewriteLinks: true, maintainAbsoluteLinks: true},
         //src globable name pattern for local files
         //site only needed if overriding options.site
         //dest -- a cascade folder path eg '/_internal'
@@ -61,4 +62,5 @@ Not planned for this tool:
 
 ## Release History
 
+* 2014-07-20 added options for rewriteLinks and maintainAbsoluteLinks
 * 2013-09-17 version 0.2.0 launched at Cascade Server Users Conference #csuc13
